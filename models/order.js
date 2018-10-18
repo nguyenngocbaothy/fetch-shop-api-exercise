@@ -131,6 +131,17 @@ exports.updateOrder = async (body, orderId) => {
 exports.deleteOrder = async (orderId) => {
     const order = await Order.findById(orderId);
     if (!order) throw new Error('Can not find order');
+
+    const orderItem = await OrderItem.OrderItem.findOne({order_id: order.id});
+    if (!orderItem) throw new Error('Can not find order item');
+    const orderItemRemoved = await orderItem.destroy();
+    if (!orderItemRemoved) throw new Error('Error to delete order item');
+
+    const delivery = await DeliveryAddress.DeliveryAddress.findById(order.delivery_add_id);
+    if (!delivery) throw new Error('Can not find delivery address');
+    const deliveryRemoved = await delivery.destroy();
+    if (!deliveryRemoved) throw new Error('Error to delete delivery');
+
     const orderRemoved = await order.destroy();
     if (!orderRemoved) throw new Error('Can not destroy order');
     return orderRemoved;
